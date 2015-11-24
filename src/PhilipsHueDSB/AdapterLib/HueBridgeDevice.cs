@@ -29,6 +29,7 @@ using System.IO;
 using System.Linq;
 using Windows.Storage;
 using BridgeRT;
+using System.Threading.Tasks;
 
 namespace AdapterLib
 {
@@ -103,6 +104,10 @@ namespace AdapterLib
                     UpdateDeviceList();
                 }
             }
+            else
+            {
+                Link();
+            }
 
             _isLinkedProperty = new AdapterProperty("Link", "com.dotMorten.PhilipsHueDSB.PhilipsHue");
             _isLinkedProperty.Attributes.Add(new AdapterAttribute("IsLinked", isLinked, E_ACCESS_TYPE.ACCESS_READ) { COVBehavior = SignalBehavior.Always });
@@ -162,6 +167,9 @@ namespace AdapterLib
                 System.Diagnostics.Debug.WriteLine(message);
                 _enableJoinMethod.OutputParams[0].Data = message; 
                 _enableJoinMethod.SetResult(1);
+
+                //Retry in 5 sec. The button on Phillips Hue bridge should be pressed when trying to link.
+                Task.Delay(5000).ContinueWith((_) => Link());
             }
         }
 
